@@ -3,8 +3,5 @@ from django.views.generic import TemplateView
 # Create your views here.
 
 
-class IndexPage(TemplateView):
-    template_name = 'index.html'
-
 class MexicoGDPPage(TemplateView):
     template_name = 'mexico_gdp_per_capita.html'
