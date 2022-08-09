@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title> Mexico GDP Per Capita </title>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="flex flex-col items-center justify-center">
+  <h1 class="title mt-12 text-3xl"> Mexico's GDP <h1> 
+</div>
+
+<div class="flex flex-col items-center justify-center mt-8">
+  <table class="table-auto w-1/2">
+    <thead>
+      <tr>
+	<th class="border border-slate-700 text-xl"> GDP </th>
+	<th class="border border-slate-700 text-xl"> Year </th>
+      </tr>
+    </thead>
+    <tbody id="result" ></tbody>
+  </table>
+</div>
+
+
+<div class="flex flex-col items-center justify-center mt-12">
+  <div class="flex w-2/3 items-center justify-around">
+    <div class="flex w-full items-center justify-around">
+      <label for="pwd_length">
+	<input type="range" class="slider" value="" id="myRange" onchange="UpdateYears(this.value)"> Years
+	<span id="pwd_length_div"> </span> 
+      </label>
+
+
+      <div x-data="{ open: false }">
+	<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="open = !open"> Compare </button>
+	<ul x-show="open">
+	  <form>
+	    <h4> Select Country </h4>
+	    <select id='fourthList' name='fourthList' onchange="CountrySelected()"> </select>
+	  </form>
+	</ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+<!-- <canvas id="myChart2" class="bg-red-300 w-96 h-48"></canvas> -->
+
+<!-- <canvas id="myChart" class="w-96 h-48" ></canvas> -->
+
+<div class="flex m-auto w-1/2">
+  <canvas class="w-full mb-24" id="myChart"/>
+</div>
+
+<script>
+
+  $(document).ready(function () {
+      list4 = document.getElementById("fourthList");
+      list4.options[0] = new Option('--Select--', '--Select--');
+      list4.options[1] = new Option('Sweden', 'Sweden');
+  });
+
+
+  // for the second chart 
+  var endpoint = "https://api.tradingeconomics.com/historical/country/mexico/indicator/gdp?c=guest:guest&f=json";
+
+  $.ajax({
+      url: endpoint,
+      type: "GET",
+      success: (data) => {
+	  // console.log(data);
+	  // console.log(data[0]);
+	  values = [];
+	  dates = [];
+	  start = 0;
+	  while (start < data.length) {
+	      values.push(data[start]['Value']);
+	      dates.push(data[start]['DateTime'].slice(0,4)); 
+	      // adds data to the data table
+	      var html = "";
+	      html = "<tr><td class=\"border border-slate-700 text-lg\">"+data[start]['Value']+"</td><td class=\"border border-slate-700 text-lg\">"+data[start]['DateTime'].slice(0,4)+"</td></tr>";
+	      document.getElementById('result').innerHTML+=html;
+	      start = start + 1;
+	  }
+	  // console.log(values);
+	  // console.log(dates);
+	  maxe = dates.length.toString();
+	  // console.log(maxe)
+	  document.getElementById("myRange").setAttribute('max', maxe);
+	  document.getElementById("myRange").setAttribute('min', "1");
+	  document.getElementById("myRange").setAttribute('value', maxe);
+	  
+
+	  const bgColor = {
+	      id: 'bgColor',
+	      beforeDraw: (chart,args,options) => {
+		  const {ctx, width, height} = chart;
+		  ctx.fillStyle = 'white';
+		  ctx.fillRect(0,0,width,height);
+		  ctx.restore();
+	      }
+	  }
+
+	  
+	  const ctx = document.getElementById('myChart').getContext('2d');
+	  myChart = new Chart(ctx, {
+	      type: 'bar',
+	      data: {
+		  labels: dates,
+		  datasets: [{
+		      label: 'Mexico GDP',
+		      data: values,
+		      fill: false,
+		      // backgroundColor: 'rgb(230,230,250)',
+		      tension: 0.1,
+		      showLine: true,
+		  }]
+	      },
+	      options: {
+		  responsive: true,
+		  aspectRatio: 1,
+		  // maintainAspectRatio: false,
+		  interaction: {
+		      mode: 'index',
+		      intersect: false,
+		  },
+		  stacked: false,
+		  plugins: {
+		      title: {
+			  display: true,
+			  text: 'Mexico GDP '
+		      },
+		      datalabels: {
+			  anchor: 'end',
+			  align: 'top',
+			  /*formatter: Math.round(value * 10),*/
+			  formatter: function(value, context) {
+			      return value.toFixed(1);
+			  },
+			  font: {
+			      weight: 'bold'
+			  }
+		      },
+		  },
+		  scales: {
+		      y: {
+			  type: 'linear',
+			  display: true,
+			  position: 'left',
+		      },
+		  }
+	      },
+	      plugins: [bgColor],
+	  })
+      }
+  });
+
+
+  // console.log(document.getElementById("fourthList").value)
+  
+  var pwd_lengthElement = document.getElementById("pwd_length_div");
+
+  function CountrySelected() {
+      if (document.getElementById("fourthList").value != "--Select--") {
+	  var chosen_country = encodeURI(document.getElementById("fourthList").value); //get the selected country and encode it
+	  // console.log(chosen_country);
+	  var base_url_historical = "https://api.tradingeconomics.com/historical/country/";
+	  var indicator = "/indicator/gdp"
+	  var guest_data = "?c=guest:guest&f=json";
+	  
+	  var endpoint = base_url_historical + chosen_country + indicator + guest_data;
+	  //console.log(endpoint);
+	  
+	  $.ajax({
+	      url: endpoint,
+	      type: "GET",
+	      success: (data) => {
+		  // console.log(data);
+		  values_two = [];
+		  dates_two = [];
+		  start = 0;
+		  while (start < data.length) {
+		      values_two.push(data[start]['Value']);
+		      dates_two.push(data[start]['DateTime'].slice(0,4));
+		      start = start + 1;
+		  }
+		  // console.log(values_two);
+		  // console.log(dates_two);
+		  if (myChart.data.datasets.length == 1) { //if theres only one dataset
+		      myChart.data.datasets.push({}); //add a dictionary
+		      myChart.data.datasets[1]['label'] = chosen_country + ' GDP.'; // label of new dictionary
+		      selected_years = document.getElementById("myRange").value;
+		      // if the charts number of years have not been changed yet
+		      if (values_two.length == myChart.data.datasets[0]['data'].length) {
+			  myChart.data.datasets[1]['data'] = values_two;
+		      }
+		      // if the charts number of years have been changed, pick from the slider
+		      else {
+			  myChart.data.datasets[1].data = values_two.slice(-selected_years);
+		      }
+		      // myChart.data.datasets[1]['data'] = values_two;
+		      console.log(values_two.length)
+		      console.log(myChart.data.datasets[0]['data'].length)
+		      myChart.data.datasets[1]['type'] = 'line'; //type of new dictionary
+		      myChart.data.datasets[1]['order'] = 2; 
+		      myChart.data.datasets[0]['order'] = 1;
+		      current_label = myChart.options['plugins']['title']['text'];
+		      myChart.options['plugins']['title']['text'] = current_label + ' vs ' + document.getElementById("fourthList").value + ' GDP.';
+		      myChart.data.datasets[1]['borderColor'] = 'rgb(0,255,255)';
+		      myChart.update();
+		      console.log(myChart.options['plugins']['title']['text']);
+		  }
+
+		  else if (myChart.data.datasets.length == 2) { //if already there's a comparison, remove the dictionary that was added and define another one
+		      window.alert('There are only two countries brother!');
+		  }
+	      }
+	  });
+	  // console.log(values_two);
+      }
+
+      else {
+	  window.alert("Please select a country");
+	  
+      }
+  }
+
+  // this function is called once someone changes years in order to access date values in their entirety.
+  function ajax_inside() {
+      var chosen_country = encodeURI(document.getElementById("fourthList").value);
+      // console.log(chosen_country);
+      var base_url_historical = "https://api.tradingeconomics.com/historical/country/";
+      var indicator = "/indicator/gdp"
+      var guest_data = "?c=guest:guest&f=json";
+      
+      var endpoint = base_url_historical + chosen_country + indicator + guest_data;
+      
+      return $.ajax ({
+	  url: endpoint,//"https://api.tradingeconomics.com/historical/country/mexico/indicator/gdp?c=guest:guest&f=json",
+	  type: "GET",
+	  async: false,
+	  success: (data) => {
+	      // console.log(data);
+	      values_two = [];
+	      dates_two = [];
+	      start = 0;
+	      while (start < data.length) {
+		  values_two.push(data[start]['Value']);
+		  dates_two.push(data[start]['DateTime'].slice(0,4));
+		  start = start + 1;
+	      }
+	  }
+      })
+  }
+
+  
+  function UpdateYears(ln) {
+      //this function changes the chart according to the number of years selected
+      // if its only one country then just change for the country.
+      if (myChart.data.datasets.length == 1) {
+	  // console.log(document.getElementById("myRange").value);
+	  selected_years = document.getElementById("myRange").value;
+	  myChart.data.datasets[0].data = values.slice(-selected_years);
+	  myChart.data.labels = dates.slice(-selected_years);
+	  pwd_lengthElement.innerHTML = " (" + ln + ")";
+	  myChart.update();
+	  // console.log(values_two);
+      }
+
+      // if there are 2 countries then fetch data for the second country again and access original values using ajax_inside function then update the chart
+      else if (myChart.data.datasets.length == 2) {
+	  let values_second_country = ajax_inside().responseJSON;
+	  values_two = [];
+	  dates_two = [];
+	  start = 0;
+	  while (start < values_second_country.length) {
+	      values_two.push(values_second_country[start]['Value']);
+	      dates_two.push(values_second_country[start]['DateTime'].slice(0,4));
+	      start = start + 1;
+	  }
+	  selected_years = document.getElementById("myRange").value;
+
+	  // for the first dataset
+	  myChart.data.datasets[0].data = values.slice(-selected_years);
+	  myChart.data.labels = dates.slice(-selected_years);
+	  
+	  //for the second dataset
+	  myChart.data.datasets[1]['data'] = values_two.slice(-selected_years); //change data
+	  myChart.data.datasets[1]['type'] = 'line'; // change chart type
+	  myChart.data.datasets[1]['order'] = 2; // change order
+	  myChart.data.labels = dates_two.slice(-selected_years); // change labels
+	  myChart.data.datasets[1]['label'] = document.getElementById("fourthList").value + ' GDP';
+	  pwd_lengthElement.innerHTML = " (" + ln + ")";
+	  myChart.update();
+      }
+  };
+
+</script>
+
+{% endblock content %}
