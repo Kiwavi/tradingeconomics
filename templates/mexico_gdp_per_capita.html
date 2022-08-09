@@ -46,9 +46,7 @@
     </div>
   </div>
 </div>
-<!-- <canvas id="myChart2" class="bg-red-300 w-96 h-48"></canvas> -->
 
-<!-- <canvas id="myChart" class="w-96 h-48" ></canvas> -->
 
 <div class="flex m-auto w-1/2">
   <canvas class="w-full mb-24" id="myChart"/>
@@ -70,8 +68,6 @@
       url: endpoint,
       type: "GET",
       success: (data) => {
-	  // console.log(data);
-	  // console.log(data[0]);
 	  values = [];
 	  dates = [];
 	  start = 0;
@@ -84,10 +80,7 @@
 	      document.getElementById('result').innerHTML+=html;
 	      start = start + 1;
 	  }
-	  // console.log(values);
-	  // console.log(dates);
-	  maxe = dates.length.toString();
-	  // console.log(maxe)
+	  maxe = dates.length.toString(); // length of the list so as to update range slider accordingly
 	  document.getElementById("myRange").setAttribute('max', maxe);
 	  document.getElementById("myRange").setAttribute('min', "1");
 	  document.getElementById("myRange").setAttribute('value', maxe);
@@ -113,7 +106,6 @@
 		      label: 'Mexico GDP',
 		      data: values,
 		      fill: false,
-		      // backgroundColor: 'rgb(230,230,250)',
 		      tension: 0.1,
 		      showLine: true,
 		  }]
@@ -121,7 +113,6 @@
 	      options: {
 		  responsive: true,
 		  aspectRatio: 1,
-		  // maintainAspectRatio: false,
 		  interaction: {
 		      mode: 'index',
 		      intersect: false,
@@ -135,7 +126,6 @@
 		      datalabels: {
 			  anchor: 'end',
 			  align: 'top',
-			  /*formatter: Math.round(value * 10),*/
 			  formatter: function(value, context) {
 			      return value.toFixed(1);
 			  },
@@ -158,26 +148,25 @@
   });
 
 
-  // console.log(document.getElementById("fourthList").value)
+  // console.log(document.getElementById("fourthList").value);
   
   var pwd_lengthElement = document.getElementById("pwd_length_div");
 
+								  
+  //this function gets the selected country and updates chart accordingly
   function CountrySelected() {
       if (document.getElementById("fourthList").value != "--Select--") {
 	  var chosen_country = encodeURI(document.getElementById("fourthList").value); //get the selected country and encode it
-	  // console.log(chosen_country);
 	  var base_url_historical = "https://api.tradingeconomics.com/historical/country/";
 	  var indicator = "/indicator/gdp"
 	  var guest_data = "?c=guest:guest&f=json";
 	  
 	  var endpoint = base_url_historical + chosen_country + indicator + guest_data;
-	  //console.log(endpoint);
 	  
 	  $.ajax({
 	      url: endpoint,
 	      type: "GET",
 	      success: (data) => {
-		  // console.log(data);
 		  values_two = [];
 		  dates_two = [];
 		  start = 0;
@@ -186,8 +175,7 @@
 		      dates_two.push(data[start]['DateTime'].slice(0,4));
 		      start = start + 1;
 		  }
-		  // console.log(values_two);
-		  // console.log(dates_two);
+		  
 		  if (myChart.data.datasets.length == 1) { //if theres only one dataset
 		      myChart.data.datasets.push({}); //add a dictionary
 		      myChart.data.datasets[1]['label'] = chosen_country + ' GDP.'; // label of new dictionary
@@ -213,12 +201,11 @@
 		      console.log(myChart.options['plugins']['title']['text']);
 		  }
 
-		  else if (myChart.data.datasets.length == 2) { //if already there's a comparison, remove the dictionary that was added and define another one
+		  else if (myChart.data.datasets.length == 2) { //if already theres a comparison, remove the dictionary that was added and define another one
 		      window.alert('There are only two countries brother!');
 		  }
 	      }
 	  });
-	  // console.log(values_two);
       }
 
       else {
@@ -227,10 +214,9 @@
       }
   }
 
-  // this function is called once someone changes years in order to access date values in their entirety.
+  // this function is called once someone changes years when theres a comparison of countries. Fetches data for second country afresh.
   function ajax_inside() {
       var chosen_country = encodeURI(document.getElementById("fourthList").value);
-      // console.log(chosen_country);
       var base_url_historical = "https://api.tradingeconomics.com/historical/country/";
       var indicator = "/indicator/gdp"
       var guest_data = "?c=guest:guest&f=json";
@@ -242,7 +228,6 @@
 	  type: "GET",
 	  async: false,
 	  success: (data) => {
-	      // console.log(data);
 	      values_two = [];
 	      dates_two = [];
 	      start = 0;
@@ -254,7 +239,6 @@
 	  }
       })
   }
-
   
   function UpdateYears(ln) {
       //this function changes the chart according to the number of years selected
@@ -266,7 +250,6 @@
 	  myChart.data.labels = dates.slice(-selected_years);
 	  pwd_lengthElement.innerHTML = " (" + ln + ")";
 	  myChart.update();
-	  // console.log(values_two);
       }
 
       // if there are 2 countries then fetch data for the second country again and access original values using ajax_inside function then update the chart
