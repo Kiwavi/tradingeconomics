@@ -16,3 +16,8 @@ Migrate
 Run the server    
 `python manage.py runserver    `    
 Visit http://127.0.0.1:8000/ in your browser    
+### Tech stack    
+- Python (Django)    
+- Javascript    
+- TailwindCSS    
+- HTML    
