@@ -21,3 +21,7 @@ Visit http://127.0.0.1:8000/ in your browser
 - Javascript    
 - TailwindCSS    
 - HTML    
+### Features    
+- Data fetched from Tradingeconomics API and organized inside a table.    
+- Chart Comparison between two countries with update option available.        
+- Ability to update charts based on number of years(flexible for any number of years based on all years available in the data)        
