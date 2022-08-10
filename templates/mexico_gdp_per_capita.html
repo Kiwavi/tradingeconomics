@@ -48,7 +48,7 @@
 </div>
 
 
-<div class="flex m-auto w-1/2">
+<div class="flex m-auto w-1/2 h-1/4">
   <canvas class="w-full mb-24" id="myChart"/>
 </div>
 
@@ -105,14 +105,13 @@
 		  datasets: [{
 		      label: 'Mexico GDP',
 		      data: values,
-		      fill: false,
-		      tension: 0.1,
-		      showLine: true,
+		      categoryPercentage: 0.7,
 		  }]
 	      },
 	      options: {
 		  responsive: true,
-		  aspectRatio: 1,
+		  maintainAspectRatio: false,
+		  // aspectRatio: 1,
 		  interaction: {
 		      mode: 'index',
 		      intersect: false,
@@ -210,7 +209,6 @@
 
       else {
 	  window.alert("Please select a country");
-	  
       }
   }
 
@@ -280,6 +278,7 @@
       }
   };
 
+  
 </script>
 
 {% endblock content %}
