@@ -225,15 +225,11 @@
 	  type: "GET",
 	  async: false,
 	  success: (data) => {
-	      values_two = [];
-	      dates_two = [];
-	      start = 0;
-	      while (start < data.length) {
-		  values_two.push(data[start]['Value']);
-		  dates_two.push(data[start]['DateTime'].slice(0,4));
-		  start = start + 1;
-	      }
-	  }
+	      return data;
+	  },
+	  error: () => {
+	      console.log("Something wrong happened");
+	  },
       })
   }
   
